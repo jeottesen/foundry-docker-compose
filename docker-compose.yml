@@ -1,0 +1,36 @@
+version: "3.8"
+
+secrets:
+    config_json:
+        file: secrets.json
+
+services:
+    nginx:
+        image: nginx
+        container_name: nginx
+        restart: unless-stopped
+        ports:
+            - '80:80'
+            - '443:443'
+        volumes:
+            - '/opt/docker/containers/nginx/html:/usr/share/nginx/html'
+            - '/opt/docker/containers/nginx/config:/etc/nginx'
+            - '/opt/docker/containers/nginx/ssl/private:/etc/ssl/private'
+            - '/opt/docker/containers/nginx/ssl/certs:/etc/ssl/certs'
+        logging:
+            options:
+                max-size: 1m
+
+    foundry:
+        image: felddy/foundryvtt:release
+        container_name: nginx
+        init: true
+        restart: unless-stopped
+        volumes:
+            - type: bind
+            source: '~/docker/containers/foundry/data'
+            target: '/data'
+        environment:
+        secrets:
+            - source: config_json
+              target: config.json
