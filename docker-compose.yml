@@ -13,24 +13,29 @@ services:
             - '80:80'
             - '443:443'
         volumes:
-            - '/opt/docker/containers/nginx/html:/usr/share/nginx/html'
-            - '/opt/docker/containers/nginx/config:/etc/nginx'
-            - '/opt/docker/containers/nginx/ssl/private:/etc/ssl/private'
-            - '/opt/docker/containers/nginx/ssl/certs:/etc/ssl/certs'
+            - '~/docker/containers/nginx/html:/etc/nginx/html'
+            - '~/docker/containers/nginx/config:/etc/nginx'
+            - '~/docker/containers/nginx/ssl/private:/etc/ssl/private'
+            - '~/docker/containers/nginx/ssl/certs:/etc/ssl/certs'
         logging:
             options:
                 max-size: 1m
 
     foundry:
         image: felddy/foundryvtt:release
-        container_name: nginx
+        container_name: foundry
         init: true
         restart: unless-stopped
         volumes:
-            - type: bind
-            source: '~/docker/containers/foundry/data'
-            target: '/data'
+                - '~/docker/containers/foundry/data:/data'
         environment:
+                - FOUNDRY_UID=${PUID}
+                - FOUNDRY_GID=${PGID}
+                - TIMEZONE=${TZ}
+                - FOUNDRY_AWS_CONFIG=/data/Config/awsConfig.json
+                - FOUNDRY_PROXY_PORT=443
+                - FOUNDRY_PROXY_SSL=true
+                - FOUNDRY_ROUTE_PREFIX=foundry
         secrets:
             - source: config_json
               target: config.json
