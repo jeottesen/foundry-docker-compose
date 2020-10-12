@@ -15,11 +15,20 @@ services:
         volumes:
             - '~/docker/containers/nginx/html:/etc/nginx/html'
             - '~/docker/containers/nginx/config:/etc/nginx'
-            - '~/docker/containers/nginx/ssl/private:/etc/ssl/private'
-            - '~/docker/containers/nginx/ssl/certs:/etc/ssl/certs'
+            - '~/docker/containers/certbot/conf:/etc/letsencrypt'
+            - '~/docker/containers/certbot/www:/var/www/certbot'
         logging:
             options:
                 max-size: 1m
+        command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+    certbot:
+        image: certbot/certbot
+        container_name: certbot
+        volumes:
+            - '~/docker/containers/certbot/conf:/etc/letsencrypt'
+            - '~/docker/containers/certbot/www:/var/www/certbot'
+        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
     foundry:
         image: felddy/foundryvtt:release
@@ -32,10 +41,10 @@ services:
                 - FOUNDRY_UID=${PUID}
                 - FOUNDRY_GID=${PGID}
                 - TIMEZONE=${TZ}
+                - FOUNDRY_HOSTNAME=forge.${DOMAIN_NAME}
                 - FOUNDRY_AWS_CONFIG=/data/Config/awsConfig.json
                 - FOUNDRY_PROXY_PORT=443
                 - FOUNDRY_PROXY_SSL=true
-                - FOUNDRY_ROUTE_PREFIX=foundry
         secrets:
             - source: config_json
               target: config.json
