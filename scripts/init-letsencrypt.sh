@@ -6,7 +6,7 @@ if ! [ -x "$(command -v docker-compose)" ]; then
 fi
 
 
-domains=(cobaltcavern.com www.cobaltcavern.com forge.cobaltcavern.com)
+domains=(my_server www.my_server foundry.my_server)
 rsa_key_size=4096
 data_path="/home/ec2-user/docker/containers/certbot"
 email="" # Adding a valid address is strongly recommended
